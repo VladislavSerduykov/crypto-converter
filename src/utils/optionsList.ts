@@ -1,9 +1,8 @@
 import { nanoid } from "nanoid";
+import { Option } from "../types/OptionInterface";
 
-interface Option {
-    name: string
-    key: string,
-    icon: string,
-}
-
-export const optionList: Option[] = [{name:'BTC',key:nanoid(),icon:``},{name:'ETH',key:nanoid()},{name:'USDT',key:nanoid()}];
+export const optionList: Option[] = [
+  { name: "BTC", key: nanoid(), icon: `` },
+  { name: "ETH", key: nanoid(), icon: `` },
+  { name: "USDT", key: nanoid(), icon: `` },
+];
