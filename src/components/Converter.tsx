@@ -1,59 +1,83 @@
 import React, { useEffect, useState } from "react";
-import { getPrice } from "../api/api";
+import { getPrices } from "../api/api";
 import Input from "./Input/Input";
 import ChangeButton from "./ChangeButton/ChangeButton";
+import Loader from "./Loader/Loader";
 
 const Converter: React.FC = () => {
-  const [selectedCoin, setSelectedCoin] = useState("BTC");
+  const [isLoading, setIsLoading] = useState(false);
+
+  const [fromCurrency, setFromCurrency] = useState({
+    icon: "",
+    symbol: "ETH",
+    price: "",
+  });
+  const [toCurrency, setToCurrency] = useState({
+    icon: "",
+    symbol: "BTC",
+    price: "",
+  });
+
+  const [selectedCoin, setSelectedCoin] = useState("");
   const [amount, setAmount] = useState("");
 
+  useEffect(() => {
+    setIsLoading(true);
+    getPrices([fromCurrency.symbol, toCurrency.symbol]).then((data) => {
+      setFromCurrency({
+        ...fromCurrency,
+        icon: data[0].icon,
+        price: data[0].price,
+      });
+      setToCurrency({
+        ...toCurrency,
+        icon: data[1].icon,
+        price: data[1].price,
+      });
+      setIsLoading(false);
+    });
+  }, []);
 
-  const handleCoinChange = async (
-    event: React.ChangeEvent<HTMLSelectElement>
-  ) => {
-    const coin = event.target.value;
-    setSelectedCoin(coin);
-    const priceData = await getPrice(coin);
-    console.log(priceData);
-    setUsdtEquivalent(
-      calculateEquivalent(parseFloat(priceData.price), parseFloat(amount))
-    );
-  };
+  const calculate = () => {
+    const fromPrice = parseFloat(fromCurrency.price);
+    const toPrice = parseFloat(toCurrency.price);
 
-  const handleAmountChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const newAmount = event.target.value;
-    setAmount(newAmount);
-    if (newAmount) {
-      const priceData = getPrice(selectedCoin);
-      console.log(priceData);
-      setUsdtEquivalent(
-        calculateEquivalent(priceData.price, parseFloat(newAmount))
-      );
-    } else {
-      setUsdtEquivalent("0");
-    }
-  };
-
-  const calculateEquivalent = (price: string, amount: number) => {
-    return (parseFloat(price) * amount).toFixed(2);
+    return fromPrice / toPrice;
   };
 
   return (
-    <div style={{width: '800px'}} className="flex bg-stone-200 items-center justify-center p-10 flex-col">
-      <h1 className="text-4xl font-bold">Выберите валюту</h1>
-      <div className="flex justify-center w-full mt-8">
-        <Input
-          value={selectedCoin}
-          onChange={handleCoinChange}
-        />
-        <div className="w-8 flex justify-center items-center mr-1 ml-1">
-        <ChangeButton/>
+    <div
+      style={{ width: "800px" }}
+      className="flex items-center justify-center p-10 flex-col"
+    >
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <div className="flex flex-col items-center justify-center">
+          <h1 className="text-4xl font-bold">Выберите валюту</h1>
+          <div onClick={calculate} className="flex justify-center w-full mt-8">
+            <Input
+              value={fromCurrency.price}
+              coinName={fromCurrency.symbol?.toUpperCase()}
+              icon={fromCurrency.icon}
+              onChange={(e) =>
+                setFromCurrency({ ...fromCurrency, price: e.target.value })
+              }
+            />
+            <div className="w-8 flex justify-center items-center mr-1 ml-1">
+              <ChangeButton coinsList={[]} />
+            </div>
+            <Input
+              value={toCurrency.price}
+              coinName={toCurrency.symbol?.toUpperCase()}
+              icon={toCurrency.icon}
+              onChange={(e) =>
+                setToCurrency({ ...toCurrency, price: e.target.value })
+              }
+            />
+          </div>
         </div>
-        <Input
-          value={selectedCoin}
-          onChange={handleCoinChange}
-        />
-      </div>
+      )}
     </div>
   );
 };

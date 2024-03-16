@@ -1,13 +1,13 @@
 import React from "react";
 import swapIcon from "../../assets/swap-icon.svg";
 
-type ChangeButtonProps = {};
+type ChangeButtonProps = {onClick: () => void};
 
-export default function ChangeButton({}: ChangeButtonProps): JSX.Element {
+export default function ChangeButton({onClick}: ChangeButtonProps): JSX.Element {
   return (
     <div>
       <div className="flex items-center justify-center">
-        <img className="hover: cursor-pointer " src={swapIcon} alt="" />
+        <img onClick={onClick} className="hover: cursor-pointer " src={swapIcon} alt="" />
       </div>
     </div>
   );
